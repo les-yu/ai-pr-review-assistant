@@ -4,18 +4,36 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { FileGroup } from "./file-group";
 import type { ReviewCommentData } from "@/types/analysis";
 
-const severityVariant: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  CRITICAL: "destructive",
-  ERROR: "destructive",
-  WARNING: "default",
-  INFO: "secondary",
+const severityOrder: Record<string, number> = {
+  CRITICAL: 0,
+  ERROR: 1,
+  WARNING: 2,
+  INFO: 3,
 };
+
+function groupByFile(
+  comments: ReviewCommentData[]
+): Map<string, ReviewCommentData[]> {
+  const grouped = new Map<string, ReviewCommentData[]>();
+  for (const comment of comments) {
+    const existing = grouped.get(comment.filePath) ?? [];
+    existing.push(comment);
+    grouped.set(comment.filePath, existing);
+  }
+  return grouped;
+}
+
+function sortByWorstSeverity(
+  a: [string, ReviewCommentData[]],
+  b: [string, ReviewCommentData[]]
+): number {
+  const getWorst = (comments: ReviewCommentData[]) =>
+    Math.min(...comments.map((c) => severityOrder[c.severity] ?? 99));
+  return getWorst(a[1]) - getWorst(b[1]);
+}
 
 export function CommentList({
   comments,
@@ -32,40 +50,27 @@ export function CommentList({
     );
   }
 
+  const grouped = Array.from(groupByFile(comments).entries()).sort(
+    sortByWorstSeverity
+  );
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">
-          Issues ({comments.length})
+          Issues ({comments.length} across {grouped.length}{" "}
+          {grouped.length === 1 ? "file" : "files"})
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {comments.map((comment, i) => (
-            <div
-              key={`${comment.filePath}:${comment.lineStart}:${i}`}
-              className="rounded-md border p-3 text-sm"
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <Badge variant={severityVariant[comment.severity] ?? "outline"}>
-                  {comment.severity}
-                </Badge>
-                <span className="text-muted-foreground">{comment.category}</span>
-                <span className="ml-auto text-xs text-muted-foreground">
-                  {comment.source}
-                </span>
-              </div>
-              <p className="font-mono text-xs text-muted-foreground mb-1">
-                {comment.filePath}
-                {comment.lineStart != null && `:${comment.lineStart}`}
-              </p>
-              <p>{comment.message}</p>
-              {comment.suggestion && (
-                <p className="mt-1 text-muted-foreground text-xs">
-                  Suggestion: {comment.suggestion}
-                </p>
-              )}
-            </div>
+          {grouped.map(([filePath, fileComments], i) => (
+            <FileGroup
+              key={filePath}
+              filePath={filePath}
+              comments={fileComments}
+              defaultOpen={i === 0}
+            />
           ))}
         </div>
       </CardContent>
