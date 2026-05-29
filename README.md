@@ -90,7 +90,7 @@ npm test        # Single run
 npm test:watch  # Watch mode
 ```
 
-- **14 test files**, **166 test cases**, all passing
+- **15 test files**, **184 test cases**, all passing
 - Framework: Vitest
 - Pattern: colocated `__tests__/` directories, factory helpers, no mocks for pure logic
 
@@ -103,7 +103,7 @@ npm test:watch  # Watch mode
 | #3 | AI context builder | ✅ Done |
 | #4 | Rule engine + LLM integration | ✅ Done |
 | #5 | AI engine composite | ✅ Done |
-| #6 | Analysis domain orchestration | ⬜ |
+| #6 | Analysis service enhancements | 🔄 PR open |
 | #7 | Home + status pages | ⬜ |
 | #8 | Dashboard UI | ⬜ |
 | #9 | Integration + deployment | ⬜ |
