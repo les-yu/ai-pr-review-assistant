@@ -36,9 +36,6 @@ Thumbs.db
 *.tsbuildinfo
 next-env.d.ts
 
-# Prisma
-prisma/migrations/
-
 # Docker
 docker-compose.override.yml
 
