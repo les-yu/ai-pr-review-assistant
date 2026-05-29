@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model PullRequest {
+  id          String   @id @default(cuid())
+  url         String   @unique
+  owner       String
+  repo        String
+  prNumber    Int
+  title       String?
+  description String?
+  author      String?
+  baseBranch  String?
+  headBranch  String?
+  state       String?
+  diffData    Json?
+  filesData   Json?
+  commitsData Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  analyses Analysis[]
+
+  @@unique([owner, repo, prNumber])
+}
+
+enum AnalysisStatus {
+  PENDING
+  ANALYZING
+  COMPLETED
+  FAILED
+}
+
+model Analysis {
+  id             String         @id @default(cuid())
+  prId           String
+  status         AnalysisStatus @default(PENDING)
+  riskScore      Json?
+  summary        String?
+  contextData    Json?
+  ruleResults    Json?
+  llmResults     Json?
+  completedAt    DateTime?
+  errorMessage   String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  pr       PullRequest      @relation(fields: [prId], references: [id], onDelete: Cascade)
+  comments ReviewComment[]
+
+  @@index([prId])
+  @@index([status])
+}
+
+enum CommentSeverity {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+model ReviewComment {
+  id          String          @id @default(cuid())
+  analysisId  String
+  filePath    String
+  lineStart   Int?
+  lineEnd     Int?
+  severity    CommentSeverity @default(INFO)
+  category    String
+  message     String
+  suggestion  String?
+  ruleId      String?
+  source      String          @default("llm")
+  metadata    Json?
+  createdAt   DateTime        @default(now())
+
+  analysis Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@index([analysisId])
+  @@index([filePath])
+  @@index([severity])
+}

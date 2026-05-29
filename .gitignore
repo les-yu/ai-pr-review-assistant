@@ -41,3 +41,5 @@ prisma/migrations/
 
 # Docker
 docker-compose.override.yml
+
+/src/generated/prisma
