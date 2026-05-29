@@ -5,26 +5,18 @@ import type { AnalysisStrategy } from "@/ai/strategies/strategy.interface";
 import { CompositeAnalysisStrategy } from "@/ai/strategies/composite.strategy";
 import { RuleAnalysisStrategy } from "@/ai/strategies/rule.strategy";
 import { LLMAnalysisStrategy } from "@/ai/strategies/llm.strategy";
+import { deepseekProvider } from "@/ai/providers/deepseek.provider";
 import type { RiskScore } from "@/types/analysis";
 
 const log = createLogger("ai.engine");
 
-/**
- * AI Analysis Engine - the single entry point for all AI analysis.
- *
- * External code (domain/analysis) should only call this module,
- * never directly access strategies, prompts, or providers.
- *
- * Architecture:
- * engine.ts → strategies/ → prompts/ → providers/
- */
 export class AIEngine {
   private strategy: AnalysisStrategy;
 
   constructor() {
     this.strategy = new CompositeAnalysisStrategy(
       new RuleAnalysisStrategy(),
-      new LLMAnalysisStrategy()
+      new LLMAnalysisStrategy(deepseekProvider)
     );
   }
 
@@ -33,10 +25,8 @@ export class AIEngine {
 
     const result = await this.strategy.analyze(context);
 
-    // Calculate overall risk score from comments
     const riskScore = this.calculateRiskScore(result.comments);
 
-    // Generate summary (placeholder until LLM is implemented)
     const summary =
       result.comments.length > 0
         ? `Found ${result.comments.length} issues across ${new Set(result.comments.map((c) => c.filePath)).size} files.`
