@@ -97,6 +97,24 @@ export async function saveAnalysisResult(
   ]);
 }
 
+export async function saveIntermediateResults(
+  analysisId: string,
+  data: {
+    contextData?: Record<string, unknown>;
+    ruleResults?: Record<string, unknown>;
+    llmResults?: Record<string, unknown>;
+  }
+) {
+  return prisma.analysis.update({
+    where: { id: analysisId },
+    data: {
+      ...(data.contextData && { contextData: data.contextData as unknown as Prisma.InputJsonValue }),
+      ...(data.ruleResults && { ruleResults: data.ruleResults as unknown as Prisma.InputJsonValue }),
+      ...(data.llmResults && { llmResults: data.llmResults as unknown as Prisma.InputJsonValue }),
+    },
+  });
+}
+
 export async function saveAnalysisError(
   analysisId: string,
   errorMessage: string

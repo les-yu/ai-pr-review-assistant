@@ -1,7 +1,7 @@
 import { createLogger } from "@/infrastructure/logger/logger";
 import type { AnalysisContext } from "@/ai/context/context.types";
 import type { AnalysisOutput } from "@/domain/analysis/analysis.types";
-import type { AnalysisStrategy } from "@/ai/strategies/strategy.interface";
+import type { AnalysisStrategy, StrategyResult } from "@/ai/strategies/strategy.interface";
 import { CompositeAnalysisStrategy } from "@/ai/strategies/composite.strategy";
 import { RuleAnalysisStrategy } from "@/ai/strategies/rule.strategy";
 import { LLMAnalysisStrategy } from "@/ai/strategies/llm.strategy";
@@ -34,10 +34,18 @@ export class AIEngine {
         ? `Found ${result.comments.length} issues across ${new Set(result.comments.map((c) => c.filePath)).size} files.`
         : "No issues found.";
 
+    const ruleResults = result.metadata.ruleResults as StrategyResult | undefined;
+    const llmResults = result.metadata.llmResults as StrategyResult | undefined;
+
     return {
       summary,
       riskScore,
       comments: result.comments,
+      pipeline: {
+        context,
+        ruleResults: ruleResults ?? { comments: [], metadata: {} },
+        llmResults: llmResults ?? { comments: [], metadata: {} },
+      },
     };
   }
 
