@@ -83,6 +83,17 @@ Copy `.env.example` to `.env` and configure:
 | `GITHUB_TOKEN` | GitHub personal access token (optional, for higher rate limits) |
 | `DEEPSEEK_API_KEY` | DeepSeek API key (required for LLM analysis) |
 
+## Testing
+
+```bash
+npm test        # Single run
+npm test:watch  # Watch mode
+```
+
+- **12 test files**, **151 test cases**, all passing
+- Framework: Vitest
+- Pattern: colocated `__tests__/` directories, factory helpers, no mocks for pure logic
+
 ## Development Roadmap
 
 | PR | Module | Status |
@@ -91,7 +102,7 @@ Copy `.env.example` to `.env` and configure:
 | #2 | GitHub integration | ✅ Done |
 | #3 | AI context builder | ✅ Done |
 | #4 | Rule engine | ✅ Done |
-| #5 | LLM + prompts | ⬜ |
+| #5 | LLM + prompts | ✅ Done |
 | #6 | AI engine composite | ⬜ |
 | #7 | Analysis domain orchestration | ⬜ |
 | #8 | Home + status pages | ⬜ |
