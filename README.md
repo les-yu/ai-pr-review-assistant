@@ -89,7 +89,7 @@ Copy `.env.example` to `.env` and configure:
 |---|---|---|
 | #1 | Project scaffold + architecture | ✅ Done |
 | #2 | GitHub integration | ✅ Done |
-| #3 | AI context builder | ⬜ |
+| #3 | AI context builder | ✅ Done |
 | #4 | Rule engine | ⬜ |
 | #5 | LLM + prompts | ⬜ |
 | #6 | AI engine composite | ⬜ |
