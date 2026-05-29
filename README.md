@@ -90,7 +90,7 @@ npm test        # Single run
 npm test:watch  # Watch mode
 ```
 
-- **15 test files**, **184 test cases**, all passing
+- **18 test files**, **204 test cases**, all passing
 - Framework: Vitest
 - Pattern: colocated `__tests__/` directories, factory helpers, no mocks for pure logic
 
@@ -107,3 +107,6 @@ npm test:watch  # Watch mode
 | #7 | Analysis status page | ✅ Done |
 | #8 | Dashboard UI | ✅ Done |
 | #9 | Integration + deployment | ✅ Done |
+| #10 | Prisma initial migration | ✅ Done |
+| #11 | LLM Provider retry mechanism | ✅ Done |
+| #12 | API route integration tests | ✅ Done |
