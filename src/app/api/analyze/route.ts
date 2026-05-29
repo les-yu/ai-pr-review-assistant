@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchFullPRData } from "@/integrations/github/github.client";
 import { startAnalysis } from "@/domain/analysis/analysis.service";
 import { successResponse, errorResponse } from "@/types/api";
+import {
+  GitHubApiError,
+  RateLimitExceededError,
+  GitHubAuthError,
+} from "@/integrations/github/github.types";
+import { createLogger } from "@/infrastructure/logger/logger";
+
+const log = createLogger("api.analyze");
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +27,28 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(successResponse({ analysisId }));
   } catch (error) {
+    log.error({ err: error }, "Analysis request failed");
+
+    if (error instanceof RateLimitExceededError) {
+      return NextResponse.json(
+        errorResponse(`GitHub API rate limit exceeded. Try again after ${error.resetAt.toISOString()}`),
+        { status: 429 }
+      );
+    }
+
+    if (error instanceof GitHubAuthError) {
+      return NextResponse.json(
+        errorResponse("GitHub authentication failed. Please configure a valid GITHUB_TOKEN."),
+        { status: 502 }
+      );
+    }
+
+    if (error instanceof GitHubApiError) {
+      return NextResponse.json(errorResponse(error.message), {
+        status: error.status === 404 ? 404 : 502,
+      });
+    }
+
     const message =
       error instanceof Error ? error.message : "Internal server error";
     return NextResponse.json(errorResponse(message), { status: 500 });
