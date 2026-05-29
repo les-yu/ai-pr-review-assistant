@@ -87,8 +87,8 @@ Copy `.env.example` to `.env` and configure:
 
 | PR | Module | Status |
 |---|---|---|
-| #1 | Project scaffold + architecture | ✅ In Progress |
-| #2 | GitHub integration | ⬜ |
+| #1 | Project scaffold + architecture | ✅ Done |
+| #2 | GitHub integration | ✅ Done |
 | #3 | AI context builder | ⬜ |
 | #4 | Rule engine | ⬜ |
 | #5 | LLM + prompts | ⬜ |
