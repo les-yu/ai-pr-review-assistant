@@ -13,11 +13,13 @@ const log = createLogger("ai.engine");
 export class AIEngine {
   private strategy: AnalysisStrategy;
 
-  constructor() {
-    this.strategy = new CompositeAnalysisStrategy(
-      new RuleAnalysisStrategy(),
-      new LLMAnalysisStrategy(deepseekProvider)
-    );
+  constructor(strategy?: AnalysisStrategy) {
+    this.strategy =
+      strategy ??
+      new CompositeAnalysisStrategy(
+        new RuleAnalysisStrategy(),
+        new LLMAnalysisStrategy(deepseekProvider)
+      );
   }
 
   async analyze(context: AnalysisContext): Promise<AnalysisOutput> {
