@@ -9,12 +9,20 @@ import {
   updateAnalysisStatus,
   saveAnalysisResult,
   saveAnalysisError,
+  saveIntermediateResults,
   getAnalysisById,
 } from "./analysis.repository";
 
 const log = createLogger("analysis.service");
 
 export async function startAnalysis(prData: PRData): Promise<string> {
+  if (!prData.info?.url) {
+    throw new Error("PR data must include info.url");
+  }
+  if (!prData.files || !Array.isArray(prData.files)) {
+    throw new Error("PR data must include a files array");
+  }
+
   log.info({ prUrl: prData.info.url }, "Starting analysis");
 
   const pr = await findOrCreatePR(prData);
@@ -35,7 +43,19 @@ async function runAnalysisPipeline(
     await updateAnalysisStatus(analysisId, "ANALYZING");
 
     const context = await buildContext(prData);
+
+    await saveIntermediateResults(analysisId, {
+      contextData: context as unknown as Record<string, unknown>,
+    });
+
     const result = await aiEngine.analyze(context);
+
+    if (result.pipeline) {
+      await saveIntermediateResults(analysisId, {
+        ruleResults: result.pipeline.ruleResults as unknown as Record<string, unknown>,
+        llmResults: result.pipeline.llmResults as unknown as Record<string, unknown>,
+      });
+    }
 
     await saveAnalysisResult(analysisId, result);
 
@@ -50,5 +70,8 @@ async function runAnalysisPipeline(
 export async function getAnalysisResult(
   analysisId: string
 ): Promise<AnalysisResult | null> {
+  if (!analysisId || typeof analysisId !== "string") {
+    throw new Error("analysisId must be a non-empty string");
+  }
   return getAnalysisById(analysisId);
 }

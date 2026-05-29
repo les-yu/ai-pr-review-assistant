@@ -200,4 +200,23 @@ describe("CompositeAnalysisStrategy", () => {
 
     expect(result.comments).toHaveLength(3);
   });
+
+  it("includes full rule and LLM results in metadata", async () => {
+    const ruleComment = makeComment({ message: "rule finding" });
+    const llmComment = makeComment({ message: "llm finding", source: "llm" });
+
+    const strategy = new CompositeAnalysisStrategy(
+      makeStrategy({ comments: [ruleComment], metadata: { rulesApplied: 7 } }),
+      makeStrategy({ comments: [llmComment], metadata: { promptTokens: 200 } })
+    );
+
+    const result = await strategy.analyze(makeContext());
+
+    expect(result.metadata.ruleResults).toBeDefined();
+    expect(result.metadata.ruleResults.comments).toHaveLength(1);
+    expect(result.metadata.ruleResults.metadata.rulesApplied).toBe(7);
+    expect(result.metadata.llmResults).toBeDefined();
+    expect(result.metadata.llmResults.comments).toHaveLength(1);
+    expect(result.metadata.llmResults.metadata.promptTokens).toBe(200);
+  });
 });

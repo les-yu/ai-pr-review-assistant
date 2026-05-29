@@ -29,6 +29,8 @@ export class CompositeAnalysisStrategy implements AnalysisStrategy {
       metadata: {
         ruleCount: ruleResult.comments.length,
         llmCount: llmResult.comments.length,
+        ruleResults: ruleResult,
+        llmResults: llmResult,
       },
     };
   }

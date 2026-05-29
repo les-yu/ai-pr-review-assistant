@@ -139,4 +139,16 @@ describe("AIEngine", () => {
     expect(result.riskScore.breakdown).toHaveProperty("performance");
     expect(result.riskScore.breakdown).toHaveProperty("maintainability");
   });
+
+  it("includes pipeline results with context and strategy outputs", async () => {
+    const engine = new AIEngine(makeStrategy({ comments: [], metadata: {} }));
+    const context = makeContext();
+
+    const result = await engine.analyze(context);
+
+    expect(result.pipeline).toBeDefined();
+    expect(result.pipeline!.context).toBe(context);
+    expect(result.pipeline!.ruleResults).toEqual({ comments: [], metadata: {} });
+    expect(result.pipeline!.llmResults).toEqual({ comments: [], metadata: {} });
+  });
 });
