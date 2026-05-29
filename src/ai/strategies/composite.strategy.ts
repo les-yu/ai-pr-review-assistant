@@ -21,12 +21,6 @@ export class CompositeAnalysisStrategy implements AnalysisStrategy {
   ) {}
 
   async analyze(context: AnalysisContext): Promise<StrategyResult> {
-    // TODO: Implement in PR #6
-    // 1. Run rule strategy
-    // 2. Run LLM strategy
-    // 3. Merge with priority: LLM > Rule for same file+line
-    // 4. Deduplicate
-
     const ruleResult = await this.ruleStrategy.analyze(context);
     const llmResult = await this.llmStrategy.analyze(context);
 
