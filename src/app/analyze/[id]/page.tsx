@@ -13,6 +13,7 @@ import {
 import { AnalysisStatus } from "@/components/analysis/analysis-status";
 import { RiskScoreCard } from "@/components/analysis/risk-score-card";
 import { CommentList } from "@/components/analysis/comment-list";
+import { SeverityBadge } from "@/components/analysis/severity-badge";
 import type { AnalysisResult, AnalysisStatusType } from "@/types/analysis";
 
 export default function AnalyzePage() {
@@ -143,6 +144,26 @@ export default function AnalyzePage() {
               <p>{result.summary}</p>
             </CardContent>
           </Card>
+        )}
+
+        {result.comments.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Severity:</span>
+            {(["CRITICAL", "ERROR", "WARNING", "INFO"] as const).map(
+              (sev) => {
+                const count = result.comments.filter(
+                  (c) => c.severity === sev
+                ).length;
+                if (count === 0) return null;
+                return (
+                  <span key={sev} className="flex items-center gap-1">
+                    <SeverityBadge severity={sev} />
+                    <span className="text-muted-foreground">&times;{count}</span>
+                  </span>
+                );
+              }
+            )}
+          </div>
         )}
 
         {result.riskScore && <RiskScoreCard riskScore={result.riskScore} />}
