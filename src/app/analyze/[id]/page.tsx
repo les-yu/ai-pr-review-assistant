@@ -45,13 +45,13 @@ export default function AnalyzePage() {
             setLoading(false);
           }
         } else {
-          setError(data.error ?? "Failed to fetch result");
+          setError(data.error ?? "获取结果失败");
           clearInterval(interval);
           setLoading(false);
         }
       } catch {
         if (active) {
-          setError("Failed to fetch result");
+          setError("获取结果失败");
           clearInterval(interval);
           setLoading(false);
         }
@@ -72,12 +72,12 @@ export default function AnalyzePage() {
       <div className="flex min-h-screen items-center justify-center p-4">
         <Card className="w-full max-w-lg">
           <CardHeader>
-            <CardTitle className="text-destructive">Error</CardTitle>
+            <CardTitle className="text-destructive">错误</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm">{error}</p>
             <Link href="/" className={buttonVariants({ variant: "outline" })}>
-              Back to Home
+              返回首页
             </Link>
           </CardContent>
         </Card>
@@ -93,8 +93,8 @@ export default function AnalyzePage() {
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             <p className="text-muted-foreground">
               {result?.status === "ANALYZING"
-                ? "Analysis in progress..."
-                : "Waiting for analysis to start..."}
+                ? "分析进行中..."
+                : "等待分析开始..."}
             </p>
           </CardContent>
         </Card>
@@ -108,16 +108,16 @@ export default function AnalyzePage() {
         <Card className="w-full max-w-lg">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Analysis Failed</CardTitle>
+              <CardTitle>分析失败</CardTitle>
               <AnalysisStatus status="FAILED" />
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-destructive">
-              {result.errorMessage ?? "An unknown error occurred"}
+              {result.errorMessage ?? "发生未知错误"}
             </p>
             <Link href="/" className={buttonVariants({ variant: "outline" })}>
-              Back to Home
+              返回首页
             </Link>
           </CardContent>
         </Card>
@@ -129,11 +129,11 @@ export default function AnalyzePage() {
     <div className="min-h-screen p-4 md:p-8">
       <div className="mx-auto max-w-3xl space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Analysis Result</h1>
+          <h1 className="text-2xl font-bold">分析结果</h1>
           <div className="flex items-center gap-3">
             <AnalysisStatus status={result.status} />
             <Link href="/" className={buttonVariants({ variant: "outline", size: "sm" })}>
-              New Analysis
+              新分析
             </Link>
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function AnalyzePage() {
 
         {result.comments.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Severity:</span>
+            <span className="text-muted-foreground">严重程度：</span>
             {(["CRITICAL", "ERROR", "WARNING", "INFO"] as const).map(
               (sev) => {
                 const count = result.comments.filter(

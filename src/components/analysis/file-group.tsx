@@ -35,7 +35,7 @@ export function FileGroup({
         </span>
         <span className="font-mono text-xs flex-1 truncate">{filePath}</span>
         <span className="text-xs text-muted-foreground">
-          {comments.length} {comments.length === 1 ? "issue" : "issues"}
+          {comments.length} 个问题
         </span>
         <SeverityBadge severity={worstSeverity(comments)} />
       </summary>
@@ -65,7 +65,7 @@ export function FileGroup({
               <p>{comment.message}</p>
               {comment.suggestion && (
                 <p className="mt-1 text-muted-foreground text-xs">
-                  Suggestion: {comment.suggestion}
+                  建议：{comment.suggestion}
                 </p>
               )}
             </div>

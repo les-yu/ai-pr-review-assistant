@@ -23,7 +23,7 @@ export default function Home() {
     setError("");
 
     if (!prUrl.includes("github.com") || !prUrl.includes("/pull/")) {
-      setError("Please enter a valid GitHub PR URL");
+      setError("请输入有效的 GitHub PR 链接");
       return;
     }
 
@@ -39,10 +39,10 @@ export default function Home() {
       if (data.success) {
         router.push(`/analyze/${data.data.analysisId}`);
       } else {
-        setError(data.error ?? "Analysis failed");
+        setError(data.error ?? "分析失败");
       }
     } catch {
-      setError("Failed to start analysis");
+      setError("启动分析失败");
     } finally {
       setLoading(false);
     }
@@ -53,10 +53,10 @@ export default function Home() {
       <Card className="w-full max-w-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">
-            AI PR Review Assistant
+            AI PR 代码审查助手
           </CardTitle>
           <CardDescription>
-            Paste a GitHub Pull Request URL to get AI-powered code review
+            粘贴 GitHub Pull Request 链接，获取 AI 驱动的代码审查
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -72,7 +72,7 @@ export default function Home() {
               <p className="text-sm text-destructive">{error}</p>
             )}
             <Button type="submit" disabled={loading} className="w-full">
-              {loading ? "Starting analysis..." : "Analyze PR"}
+              {loading ? "正在启动分析..." : "开始分析"}
             </Button>
           </form>
         </CardContent>

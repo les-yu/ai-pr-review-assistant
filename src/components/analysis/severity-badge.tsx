@@ -8,6 +8,13 @@ const severityStyles: Record<string, string> = {
   INFO: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200",
 };
 
+const severityLabels: Record<string, string> = {
+  CRITICAL: "严重",
+  ERROR: "错误",
+  WARNING: "警告",
+  INFO: "提示",
+};
+
 export function SeverityBadge({
   severity,
   className,
@@ -23,7 +30,7 @@ export function SeverityBadge({
         className
       )}
     >
-      {severity}
+      {severityLabels[severity] ?? severity}
     </span>
   );
 }

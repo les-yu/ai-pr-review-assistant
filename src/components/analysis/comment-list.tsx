@@ -44,7 +44,7 @@ export function CommentList({
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          No issues found.
+          未发现问题。
         </CardContent>
       </Card>
     );
@@ -58,8 +58,7 @@ export function CommentList({
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">
-          Issues ({comments.length} across {grouped.length}{" "}
-          {grouped.length === 1 ? "file" : "files"})
+          问题（{comments.length} 个问题，涉及 {grouped.length} 个文件）
         </CardTitle>
       </CardHeader>
       <CardContent>

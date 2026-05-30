@@ -14,11 +14,18 @@ const levelColors: Record<string, string> = {
   critical: "text-red-600",
 };
 
+const levelLabels: Record<string, string> = {
+  low: "低",
+  medium: "中",
+  high: "高",
+  critical: "严重",
+};
+
 export function RiskScoreCard({ riskScore }: { riskScore: RiskScore }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Risk Score</CardTitle>
+        <CardTitle className="text-lg">风险评分</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-baseline gap-2">
@@ -27,7 +34,7 @@ export function RiskScoreCard({ riskScore }: { riskScore: RiskScore }) {
           <span
             className={`ml-auto text-sm font-semibold uppercase ${levelColors[riskScore.level] ?? ""}`}
           >
-            {riskScore.level}
+            {levelLabels[riskScore.level] ?? riskScore.level}
           </span>
         </div>
         <Separator />
