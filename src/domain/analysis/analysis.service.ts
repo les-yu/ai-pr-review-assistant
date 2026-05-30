@@ -15,7 +15,7 @@ import {
 
 const log = createLogger("analysis.service");
 
-export async function startAnalysis(prData: PRData): Promise<string> {
+export async function createAnalysisRecord(prData: PRData): Promise<string> {
   if (!prData.info?.url) {
     throw new Error("PR data must include info.url");
   }
@@ -23,16 +23,21 @@ export async function startAnalysis(prData: PRData): Promise<string> {
     throw new Error("PR data must include a files array");
   }
 
-  log.info({ prUrl: prData.info.url }, "Starting analysis");
+  log.info({ prUrl: prData.info.url }, "Creating analysis record");
 
   const pr = await findOrCreatePR(prData);
   const analysisId = await createAnalysis(pr.id);
 
-  runAnalysisPipeline(analysisId, prData).catch((err) => {
-    log.error({ err, analysisId }, "Analysis pipeline failed");
-  });
-
   return analysisId;
+}
+
+export async function executeAnalysis(
+  analysisId: string,
+  prData: PRData
+): Promise<void> {
+  log.info({ analysisId }, "Executing analysis");
+
+  await runAnalysisPipeline(analysisId, prData);
 }
 
 async function runAnalysisPipeline(

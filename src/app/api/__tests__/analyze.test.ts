@@ -7,14 +7,21 @@ import {
 } from "@/integrations/github/github.types";
 
 const mockFetchFullPRData = vi.fn();
-const mockStartAnalysis = vi.fn();
+const mockCreateAnalysisRecord = vi.fn();
+const mockPublishJSON = vi.fn();
 
 vi.mock("@/integrations/github/github.client", () => ({
   fetchFullPRData: mockFetchFullPRData,
 }));
 
 vi.mock("@/domain/analysis/analysis.service", () => ({
-  startAnalysis: mockStartAnalysis,
+  createAnalysisRecord: mockCreateAnalysisRecord,
+}));
+
+vi.mock("@upstash/qstash", () => ({
+  Client: class MockClient {
+    publishJSON = mockPublishJSON;
+  },
 }));
 
 vi.mock("@/infrastructure/logger/logger", () => ({
@@ -44,7 +51,8 @@ describe("POST /api/analyze", () => {
 
   it("returns analysisId on success", async () => {
     mockFetchFullPRData.mockResolvedValue({ info: {}, files: [] });
-    mockStartAnalysis.mockResolvedValue("analysis-123");
+    mockCreateAnalysisRecord.mockResolvedValue("analysis-123");
+    mockPublishJSON.mockResolvedValue({});
 
     const response = await POST(makeRequest({ prUrl: "https://github.com/owner/repo/pull/1" }));
     const data = await response.json();
@@ -53,7 +61,8 @@ describe("POST /api/analyze", () => {
     expect(data.success).toBe(true);
     expect(data.data.analysisId).toBe("analysis-123");
     expect(mockFetchFullPRData).toHaveBeenCalledWith("https://github.com/owner/repo/pull/1");
-    expect(mockStartAnalysis).toHaveBeenCalledTimes(1);
+    expect(mockCreateAnalysisRecord).toHaveBeenCalledTimes(1);
+    expect(mockPublishJSON).toHaveBeenCalledTimes(1);
   });
 
   it("returns 400 when prUrl is missing", async () => {

@@ -2,7 +2,7 @@ import { prisma } from "@/infrastructure/db/prisma";
 import { createLogger } from "@/infrastructure/logger/logger";
 import type { PRData } from "@/types/github";
 import type { AnalysisResult, ReviewCommentData, RiskScore } from "@/types/analysis";
-import type { AnalysisStatus, Prisma } from "@/generated/prisma/client";
+import type { AnalysisStatus, Prisma, ReviewComment } from "@/generated/prisma/client";
 
 const log = createLogger("analysis.repository");
 
@@ -143,7 +143,7 @@ export async function getAnalysisById(
     status: analysis.status as AnalysisResult["status"],
     riskScore: analysis.riskScore as unknown as RiskScore | null,
     summary: analysis.summary,
-    comments: analysis.comments.map((c) => ({
+    comments: analysis.comments.map((c: ReviewComment) => ({
       filePath: c.filePath,
       lineStart: c.lineStart ?? undefined,
       lineEnd: c.lineEnd ?? undefined,

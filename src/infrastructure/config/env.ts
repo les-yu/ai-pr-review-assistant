@@ -2,9 +2,13 @@ import { z } from "zod";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().default("postgresql://localhost:5432/test"),
+  DIRECT_URL: z.string().optional(),
   GITHUB_TOKEN: z.string().default(""),
   DEEPSEEK_API_KEY: z.string().default(""),
   DEEPSEEK_BASE_URL: z.string().default("https://api.deepseek.com"),
+  QSTASH_TOKEN: z.string().default(""),
+  QSTASH_CURRENT_SIGNING_KEY: z.string().default(""),
+  QSTASH_NEXT_SIGNING_KEY: z.string().default(""),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),

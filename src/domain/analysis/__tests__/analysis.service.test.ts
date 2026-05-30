@@ -26,7 +26,7 @@ vi.mock("../analysis.repository", () => ({
   getAnalysisById: vi.fn(),
 }));
 
-import { startAnalysis, getAnalysisResult } from "../analysis.service";
+import { createAnalysisRecord, executeAnalysis, getAnalysisResult } from "../analysis.service";
 import { buildContext } from "@/ai/context/context-builder";
 import { aiEngine } from "@/ai/engine";
 import {
@@ -119,20 +119,15 @@ function flushMicrotasks() {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-describe("startAnalysis", () => {
+describe("createAnalysisRecord", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(findOrCreatePR).mockResolvedValue({ id: "pr-1" } as any);
     vi.mocked(createAnalysis).mockResolvedValue("analysis-1");
-    vi.mocked(buildContext).mockResolvedValue(makeContext());
-    vi.mocked(aiEngine.analyze).mockResolvedValue(makeAnalysisOutput());
-    vi.mocked(updateAnalysisStatus).mockResolvedValue(undefined as any);
-    vi.mocked(saveIntermediateResults).mockResolvedValue(undefined as any);
-    vi.mocked(saveAnalysisResult).mockResolvedValue(undefined as any);
   });
 
   it("creates PR record and analysis, returns analysisId", async () => {
-    const result = await startAnalysis(makePRData());
+    const result = await createAnalysisRecord(makePRData());
 
     expect(result).toBe("analysis-1");
     expect(findOrCreatePR).toHaveBeenCalledWith(expect.objectContaining({
@@ -141,17 +136,33 @@ describe("startAnalysis", () => {
     expect(createAnalysis).toHaveBeenCalledWith("pr-1");
   });
 
-  it("fires analysis pipeline asynchronously", async () => {
-    await startAnalysis(makePRData());
-    await flushMicrotasks();
+  it("throws when prData.info.url is missing", async () => {
+    const prData = makePRData();
+    prData.info.url = "";
 
-    expect(buildContext).toHaveBeenCalled();
-    expect(aiEngine.analyze).toHaveBeenCalled();
+    await expect(createAnalysisRecord(prData)).rejects.toThrow("PR data must include info.url");
+  });
+
+  it("throws when prData.files is not an array", async () => {
+    const prData = makePRData();
+    (prData as any).files = undefined;
+
+    await expect(createAnalysisRecord(prData)).rejects.toThrow("PR data must include a files array");
+  });
+});
+
+describe("executeAnalysis", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(buildContext).mockResolvedValue(makeContext());
+    vi.mocked(aiEngine.analyze).mockResolvedValue(makeAnalysisOutput());
+    vi.mocked(updateAnalysisStatus).mockResolvedValue(undefined as any);
+    vi.mocked(saveIntermediateResults).mockResolvedValue(undefined as any);
+    vi.mocked(saveAnalysisResult).mockResolvedValue(undefined as any);
   });
 
   it("sets status to ANALYZING then COMPLETED on success", async () => {
-    await startAnalysis(makePRData());
-    await flushMicrotasks();
+    await executeAnalysis("analysis-1", makePRData());
 
     expect(updateAnalysisStatus).toHaveBeenCalledWith("analysis-1", "ANALYZING");
     expect(saveAnalysisResult).toHaveBeenCalledWith(
@@ -161,8 +172,7 @@ describe("startAnalysis", () => {
   });
 
   it("persists contextData after buildContext", async () => {
-    await startAnalysis(makePRData());
-    await flushMicrotasks();
+    await executeAnalysis("analysis-1", makePRData());
 
     expect(saveIntermediateResults).toHaveBeenCalledWith(
       "analysis-1",
@@ -171,8 +181,7 @@ describe("startAnalysis", () => {
   });
 
   it("persists ruleResults and llmResults after engine analysis", async () => {
-    await startAnalysis(makePRData());
-    await flushMicrotasks();
+    await executeAnalysis("analysis-1", makePRData());
 
     const calls = vi.mocked(saveIntermediateResults).mock.calls;
     expect(calls.length).toBe(2);
@@ -192,8 +201,7 @@ describe("startAnalysis", () => {
       return undefined as any;
     });
 
-    await startAnalysis(makePRData());
-    await flushMicrotasks();
+    await executeAnalysis("analysis-1", makePRData());
 
     expect(callOrder).toEqual(["context", "ruleResults"]);
   });
@@ -201,8 +209,7 @@ describe("startAnalysis", () => {
   it("sets status to FAILED and saves error on pipeline failure", async () => {
     vi.mocked(buildContext).mockRejectedValue(new Error("context build failed"));
 
-    await startAnalysis(makePRData());
-    await flushMicrotasks();
+    await executeAnalysis("analysis-1", makePRData());
 
     expect(saveAnalysisError).toHaveBeenCalledWith("analysis-1", "context build failed");
     expect(saveAnalysisResult).not.toHaveBeenCalled();
@@ -211,8 +218,7 @@ describe("startAnalysis", () => {
   it("saves 'Unknown error' when non-Error is thrown", async () => {
     vi.mocked(buildContext).mockRejectedValue("string error");
 
-    await startAnalysis(makePRData());
-    await flushMicrotasks();
+    await executeAnalysis("analysis-1", makePRData());
 
     expect(saveAnalysisError).toHaveBeenCalledWith("analysis-1", "Unknown error");
   });
@@ -220,8 +226,7 @@ describe("startAnalysis", () => {
   it("still saves contextData even if engine fails", async () => {
     vi.mocked(aiEngine.analyze).mockRejectedValue(new Error("engine failed"));
 
-    await startAnalysis(makePRData());
-    await flushMicrotasks();
+    await executeAnalysis("analysis-1", makePRData());
 
     const calls = vi.mocked(saveIntermediateResults).mock.calls;
     expect(calls.length).toBe(1);
@@ -235,26 +240,11 @@ describe("startAnalysis", () => {
       makeAnalysisOutput({ pipeline: undefined })
     );
 
-    await startAnalysis(makePRData());
-    await flushMicrotasks();
+    await executeAnalysis("analysis-1", makePRData());
 
     const calls = vi.mocked(saveIntermediateResults).mock.calls;
     expect(calls.length).toBe(1);
     expect(saveAnalysisResult).toHaveBeenCalled();
-  });
-
-  it("throws when prData.info.url is missing", async () => {
-    const prData = makePRData();
-    prData.info.url = "";
-
-    await expect(startAnalysis(prData)).rejects.toThrow("PR data must include info.url");
-  });
-
-  it("throws when prData.files is not an array", async () => {
-    const prData = makePRData();
-    (prData as any).files = undefined;
-
-    await expect(startAnalysis(prData)).rejects.toThrow("PR data must include a files array");
   });
 });
 
