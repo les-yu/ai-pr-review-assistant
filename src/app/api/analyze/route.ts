@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Client } from "@upstash/qstash";
 import { fetchFullPRData } from "@/integrations/github/github.client";
-import { startAnalysis } from "@/domain/analysis/analysis.service";
+import { createAnalysisRecord } from "@/domain/analysis/analysis.service";
 import { successResponse, errorResponse } from "@/types/api";
 import {
   GitHubApiError,
@@ -8,6 +9,7 @@ import {
   GitHubAuthError,
 } from "@/integrations/github/github.types";
 import { createLogger } from "@/infrastructure/logger/logger";
+import { env } from "@/infrastructure/config/env";
 
 const log = createLogger("api.analyze");
 
@@ -23,7 +25,17 @@ export async function POST(request: NextRequest) {
     }
 
     const prData = await fetchFullPRData(prUrl);
-    const analysisId = await startAnalysis(prData);
+    const analysisId = await createAnalysisRecord(prData);
+
+    const qstash = new Client({ token: env.QSTASH_TOKEN });
+    const baseUrl = env.NEXT_PUBLIC_APP_URL;
+
+    await qstash.publishJSON({
+      url: `${baseUrl}/api/webhook/analyze`,
+      body: { analysisId, prData },
+    });
+
+    log.info({ analysisId }, "Analysis task queued via QStash");
 
     return NextResponse.json(successResponse({ analysisId }));
   } catch (error) {
