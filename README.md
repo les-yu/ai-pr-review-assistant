@@ -2,6 +2,8 @@
 
 > 粘贴一个 GitHub Pull Request 链接，AI 自动帮你做代码审查 —— 发现安全漏洞、代码质量问题，并给出风险评分和改进建议。
 
+**演示视频：** [B站 — 粘贴一个链接，AI 自动帮你做 Code Review｜全栈项目实战](https://www.bilibili.com/video/BV1YKVQ6TEzv/)
+
 ## 它能做什么？
 
 你有没有遇到过这样的场景：一个 PR 改了 30 个文件，reviewer 看了半天只改了几个 typo，真正的安全问题反而漏掉了？
