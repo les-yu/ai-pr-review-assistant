@@ -2,6 +2,8 @@
 
 > 粘贴一个 GitHub Pull Request 链接，AI 自动帮你做代码审查 —— 发现安全漏洞、代码质量问题，并给出风险评分和改进建议。
 
+**在线体验：** [ai-pr-review-assistant.vercel.app](https://ai-pr-review-assistant.vercel.app)
+
 **演示视频：** [B站 — 粘贴一个链接，AI 自动帮你做 Code Review｜全栈项目实战](https://www.bilibili.com/video/BV1YKVQ6TEzv/)
 
 ## 它能做什么？
@@ -207,11 +209,11 @@ npm run dev
 
 ### API 接口
 
-如果你想在自己的工具中集成，可以直接调用 API：
+如果你想在自己的工具中集成，可以直接调用 API（本地 `http://localhost:3000` 或线上 `https://ai-pr-review-assistant.vercel.app`）：
 
 **提交分析**
 ```bash
-curl -X POST http://localhost:3000/api/analyze \
+curl -X POST https://ai-pr-review-assistant.vercel.app/api/analyze \
   -H "Content-Type: application/json" \
   -d '{"prUrl": "https://github.com/owner/repo/pull/123"}'
 ```
@@ -228,7 +230,7 @@ curl -X POST http://localhost:3000/api/analyze \
 
 **查询结果**
 ```bash
-curl http://localhost:3000/api/result/{analysisId}
+curl https://ai-pr-review-assistant.vercel.app/api/result/{analysisId}
 ```
 
 响应：
